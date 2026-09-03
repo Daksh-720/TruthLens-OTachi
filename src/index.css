@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg-grid-light: #eeebe2;
+  --grid-line-light: rgba(0, 0, 0, 0.055);
+  --card-bg-light: #faf8f4;
+  --border-light: #dcd8cb;
+  --text-main-light: #18181b;
+  --text-muted-light: #71717a;
+
+  --bg-grid-dark: #121211;
+  --grid-line-dark: rgba(255, 255, 255, 0.04);
+  --card-bg-dark: #1a1a19;
+  --border-dark: #2c2b29;
+  --text-main-dark: #f4f4f5;
+  --text-muted-dark: #a1a1aa;
+
+  --brand-red: #b91c1c;
+  --brand-red-hover: #991b1b;
+  --brand-red-light: rgba(185, 28, 28, 0.08);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+.font-mono-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Light mode engineering graph grid pattern with warm off-white vellum tone */
+.bg-graph-light {
+  background-color: #eeebe2;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.055) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Dark mode engineering graph grid pattern */
+.bg-graph-dark {
+  background-color: #121211;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Refined warm off-white palette for Light Mode */
+html:not(.dark) .bg-white {
+  background-color: #faf8f4 !important;
+}
+
+html:not(.dark) .bg-stone-50 {
+  background-color: #f3efe6 !important;
+}
+
+html:not(.dark) .bg-stone-100 {
+  background-color: #ebe7dc !important;
+}
+
+html:not(.dark) .border-stone-300 {
+  border-color: #dad5c7 !important;
+}
+
+html:not(.dark) .border-stone-200 {
+  border-color: #e3dfd3 !important;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+}
