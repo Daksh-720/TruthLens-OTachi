@@ -66,7 +66,7 @@ public class GeminiIntegration {
         Map<?, ?> response;
         try {
             response = restClient.post()
-                    .uri("/models/gemini-3.7-flash:generateContent?key=" + apiKey)
+                    .uri("/models/gemini-3.6-flash:generateContent?key=" + apiKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(body)
                     .retrieve()
