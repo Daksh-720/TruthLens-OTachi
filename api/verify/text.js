@@ -40,28 +40,36 @@ Return ONLY valid JSON in this exact schema:
 }
 `;
 
-  try {
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: 'application/json' }
-        })
+  const models = ['gemini-3.7-flash', 'gemini-3.5-flash', 'gemini-3.6-flash'];
+  let lastErr = null;
+
+  for (const model of models) {
+    try {
+      const geminiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: 'application/json' }
+          })
+        }
+      );
+
+      if (geminiRes.ok) {
+        const data = await geminiRes.json();
+        const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (raw) {
+          const resultJson = JSON.parse(raw);
+          return res.status(200).json(resultJson);
+        }
       }
-    );
-
-    if (!geminiRes.ok) {
-      throw new Error(`Gemini API error: ${geminiRes.status}`);
+    } catch (e) {
+      lastErr = e;
     }
-
-    const data = await geminiRes.json();
-    const resultJson = JSON.parse(data.candidates[0].content.parts[0].text);
-    return res.status(200).json(resultJson);
-  } catch (error) {
-    console.error('Gemini error:', error);
+  }
+  console.error('Gemini error:', lastErr);
     // Fallback response
     return res.status(200).json({
       verdict: 'MISLEADING',

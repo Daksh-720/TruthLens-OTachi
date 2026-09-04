@@ -4,7 +4,8 @@
 const DEFAULT_API_KEY = typeof atob !== 'undefined'
   ? atob('QVEuQWI4Uk42S2dnR2xzR3NUSXBTa1MwQ0xzYTJfdzBKRUVSWjRYXzNIWTRqM2pkYnd2SkE=')
   : '';
-const MODELS = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+// Hit 3.7 model first; if that doesn't respond, switch to 3.5 model, then 3.6 fallback
+const MODELS = ['gemini-3.7-flash', 'gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
 
 export function getActiveApiKey() {
   const localKey = typeof window !== 'undefined' ? localStorage.getItem('TRUTHLENS_GEMINI_KEY') : null;

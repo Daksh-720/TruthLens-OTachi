@@ -10,19 +10,55 @@ import PixelTransition from './components/PixelTransition';
 import { INITIAL_HISTORY } from './data/mockData';
 
 export default function App() {
-  // Always show login/register modal on refresh as requested
-  const [showAuthModal, setShowAuthModal] = useState(true);
-  // Default to null representing a person who hasn't logged in (no fake email)
-  const [currentUser, setCurrentUser] = useState(null);
+  // Check localStorage for persisted user or OAuth callback
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('TRUTHLENS_USER');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  // If user is already logged in, do not block with auth modal
+  const [showAuthModal, setShowAuthModal] = useState(() => {
+    try {
+      return !localStorage.getItem('TRUTHLENS_USER');
+    } catch (e) {
+      return true;
+    }
+  });
 
   const [activeTab, setActiveTab] = useState('verify');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [historyItems, setHistoryItems] = useState(INITIAL_HISTORY);
 
-  // Digital pixel transition state
-  const [isPixelSwapping, setIsPixelSwapping] = useState(false);
-  const [targetDark, setTargetDark] = useState(false);
+  // Handle OAuth hash redirects (e.g. from Supabase / Google / GitHub OAuth)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
+      try {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        if (accessToken) {
+          const oauthUser = {
+            name: 'OAuth Verified Analyst',
+            email: 'verified.analyst@truthlens.ai',
+            initials: 'OA',
+            provider: 'oauth',
+            verified: true,
+            token: accessToken
+          };
+          setCurrentUser(oauthUser);
+          localStorage.setItem('TRUTHLENS_USER', JSON.stringify(oauthUser));
+          setShowAuthModal(false);
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      } catch (err) {
+        console.warn('OAuth hash parsing failed:', err);
+      }
+    }
+  }, []);
 
   // Sync dark class on documentElement
   useEffect(() => {
@@ -48,11 +84,17 @@ export default function App() {
 
   const handleLogin = (userData) => {
     setCurrentUser(userData);
+    if (userData) {
+      localStorage.setItem('TRUTHLENS_USER', JSON.stringify(userData));
+    } else {
+      localStorage.removeItem('TRUTHLENS_USER');
+    }
     setShowAuthModal(false);
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
+    localStorage.removeItem('TRUTHLENS_USER');
     setShowAuthModal(true);
   };
 

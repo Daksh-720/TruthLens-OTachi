@@ -63,16 +63,28 @@ public class GeminiIntegration {
             );
         }
 
-        Map<?, ?> response;
-        try {
-            response = restClient.post()
-                    .uri("/models/gemini-3.6-flash:generateContent?key=" + apiKey)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body)
-                    .retrieve()
-                    .body(Map.class);
-        } catch (org.springframework.web.client.HttpStatusCodeException e) {
-            throw new RuntimeException("Gemini API call failed with status " + e.getStatusCode() + ": " + e.getResponseBodyAsString(), e);
+        Map<?, ?> response = null;
+        String[] candidateModels = {"gemini-3.7-flash", "gemini-3.5-flash", "gemini-3.6-flash"};
+        Exception lastException = null;
+
+        for (String model : candidateModels) {
+            try {
+                response = restClient.post()
+                        .uri("/models/" + model + ":generateContent?key=" + apiKey)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(body)
+                        .retrieve()
+                        .body(Map.class);
+                if (response != null && response.containsKey("candidates")) {
+                    break;
+                }
+            } catch (Exception e) {
+                lastException = e;
+            }
+        }
+
+        if (response == null && lastException != null) {
+            throw new RuntimeException("Gemini API call failed across models: " + lastException.getMessage(), lastException);
         }
 
         if (response == null) {

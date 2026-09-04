@@ -337,7 +337,7 @@ export default function VerifyWorkbench({ onSaveResult = () => {} }) {
           title="Configure Gemini API Key"
         >
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>⚡ Gemini 3.6 Flash Active</span>
+          <span>⚡ Gemini 3.7 Flash (Fallback: 3.5)</span>
         </button>
       </div>
 
@@ -496,7 +496,7 @@ export default function VerifyWorkbench({ onSaveResult = () => {} }) {
             AI ENGINE
           </div>
           <div className="text-sm font-medium text-stone-800 dark:text-zinc-200">
-            Google Gemini 3.6 Flash
+            Gemini 3.7 Flash (3.5 Fallback)
           </div>
         </div>
 
