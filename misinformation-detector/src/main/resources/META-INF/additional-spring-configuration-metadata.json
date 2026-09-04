@@ -1,0 +1,32 @@
+{"properties": [
+  {
+    "name": "openrouter.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'openrouter.api.key'"
+  },
+  {
+    "name": "openrouter.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'openrouter.api.key'"
+  },
+  {
+    "name": "gemini.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'gemini.api.key'"
+  },
+  {
+    "name": "gemini.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'gemini.api.key'"
+  },
+  {
+    "name": "supabase.url",
+    "type": "java.lang.String",
+    "description": "A description for 'supabase.url'"
+  },
+  {
+    "name": "supabase.anon-key",
+    "type": "java.lang.String",
+    "description": "A description for 'supabase.anon-key'"
+  }
+]}

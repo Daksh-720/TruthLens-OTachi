@@ -1,0 +1,38 @@
+# ===== Frontend (Vite / Node) =====
+node_modules/
+dist/
+*.local
+
+# ===== Backend (Spring Boot / Maven) =====
+misinformation-detector/target/
+misinformation-detector/.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/nbdist/
+/.nb-gradle/
+
+# Environment / Secrets
+.env
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
