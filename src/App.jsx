@@ -34,6 +34,10 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [historyItems, setHistoryItems] = useState(INITIAL_HISTORY);
 
+  // Digital pixel transition state
+  const [isPixelSwapping, setIsPixelSwapping] = useState(false);
+  const [targetDark, setTargetDark] = useState(false);
+
   // Handle OAuth hash redirects (e.g. from Supabase / Google / GitHub OAuth)
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
