@@ -11,8 +11,51 @@ import {
   AlertCircle,
   X,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  KeyRound
 } from 'lucide-react';
+
+const PRESEEDED_ACCOUNTS = [
+  {
+    name: 'Senior Forensic Analyst',
+    email: 'analyst@truthlens.ai',
+    password: 'password123',
+    initials: 'SA',
+    provider: 'email'
+  },
+  {
+    name: 'Daksh Salvi',
+    email: 'dakshsalvi59@gmail.com',
+    password: 'hackathon123',
+    initials: 'DS',
+    provider: 'email'
+  }
+];
+
+function getAccounts() {
+  if (typeof window === 'undefined') return PRESEEDED_ACCOUNTS;
+  try {
+    const data = localStorage.getItem('TRUTHLENS_REGISTERED_ACCOUNTS');
+    if (!data) {
+      localStorage.setItem('TRUTHLENS_REGISTERED_ACCOUNTS', JSON.stringify(PRESEEDED_ACCOUNTS));
+      return PRESEEDED_ACCOUNTS;
+    }
+    return JSON.parse(data);
+  } catch (e) {
+    return PRESEEDED_ACCOUNTS;
+  }
+}
+
+function saveAccount(newAccount) {
+  if (typeof window === 'undefined') return;
+  try {
+    const existing = getAccounts();
+    const updated = [...existing.filter(a => a.email.toLowerCase() !== newAccount.email.toLowerCase()), newAccount];
+    localStorage.setItem('TRUTHLENS_REGISTERED_ACCOUNTS', JSON.stringify(updated));
+  } catch (e) {
+    console.warn('Could not save account:', e);
+  }
+}
 
 export default function AuthModal({ onLogin = () => {}, onClose = null }) {
   const [isRegister, setIsRegister] = useState(false);
@@ -23,93 +66,160 @@ export default function AuthModal({ onLogin = () => {}, onClose = null }) {
   const [isLoading, setIsLoading] = useState(false);
   const [oauthProvider, setOauthProvider] = useState(null);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+
+  const validateEmail = (val) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+  };
+
+  const handleFillDemo = () => {
+    setIsRegister(false);
+    setEmail('analyst@truthlens.ai');
+    setPassword('password123');
+    setError('');
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      setError('Please fill in both email and password.');
+    setError('');
+    setSuccessMsg('');
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    if (!cleanEmail || !cleanPassword) {
+      setError('Please provide both your email and password.');
       return;
     }
 
-    setIsLoading(true);
-    setError('');
+    if (!validateEmail(cleanEmail)) {
+      setError('Please enter a valid email address (e.g. analyst@domain.com).');
+      return;
+    }
 
-    setTimeout(() => {
-      setIsLoading(false);
+    if (cleanPassword.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    const accounts = getAccounts();
+    const existing = accounts.find(a => a.email.toLowerCase() === cleanEmail);
+
+    if (isRegister) {
+      // Registration Flow
+      if (!name.trim()) {
+        setError('Please enter your full name or analyst handle.');
+        return;
+      }
+
+      if (existing) {
+        setError('An account with this email address already exists. Please sign in instead.');
+        return;
+      }
+
+      setIsLoading(true);
+
       const initials = name.trim()
-        ? name
-            .split(' ')
-            .map((n) => n[0])
-            .join('')
-            .toUpperCase()
-            .slice(0, 2)
-        : email.slice(0, 2).toUpperCase();
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2) || 'U';
 
-      onLogin({
-        name: name.trim() || email.split('@')[0],
-        email: email.trim(),
-        initials: initials || 'U',
+      const newAccount = {
+        name: name.trim(),
+        email: cleanEmail,
+        password: cleanPassword,
+        initials,
         provider: 'email',
-        verified: true
-      });
-    }, 450);
+        verified: true,
+        createdAt: new Date().toISOString()
+      };
+
+      saveAccount(newAccount);
+
+      setTimeout(() => {
+        setIsLoading(false);
+        setSuccessMsg('Account registered successfully! Redirecting...');
+        setTimeout(() => {
+          onLogin(newAccount);
+        }, 600);
+      }, 500);
+
+    } else {
+      // Login Flow
+      setIsLoading(true);
+
+      setTimeout(() => {
+        setIsLoading(false);
+
+        if (existing) {
+          if (existing.password && existing.password !== cleanPassword) {
+            setError('Incorrect password for this account. Please verify credentials.');
+            return;
+          }
+          setSuccessMsg('Authentication verified! Redirecting...');
+          setTimeout(() => {
+            onLogin(existing);
+          }, 500);
+        } else {
+          // If account is new, auto-register seamlessly
+          const derivedName = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9]/g, ' ');
+          const formattedName = derivedName.charAt(0).toUpperCase() + derivedName.slice(1);
+          const initials = formattedName.slice(0, 2).toUpperCase() || 'U';
+
+          const autoAccount = {
+            name: formattedName,
+            email: cleanEmail,
+            password: cleanPassword,
+            initials,
+            provider: 'email',
+            verified: true,
+            createdAt: new Date().toISOString()
+          };
+
+          saveAccount(autoAccount);
+          setSuccessMsg('Welcome to TruthLens! Redirecting...');
+          setTimeout(() => {
+            onLogin(autoAccount);
+          }, 500);
+        }
+      }, 450);
+    }
   };
 
   const handleOAuthLogin = (provider) => {
     setIsLoading(true);
     setOauthProvider(provider);
     setError('');
+    setSuccessMsg('');
 
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://fvgqesfrcxjychyufnby.supabase.co';
-
-    try {
-      const redirectUrl = encodeURIComponent(window.location.origin);
-      const authUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${redirectUrl}`;
-
-      // Open OAuth in an authenticated popup window
-      const popup = window.open(
-        authUrl,
-        `OAuth_${provider}`,
-        'width=520,height=620,top=100,left=100'
-      );
-
-      // Fast, zero-friction OAuth completion:
-      setTimeout(() => {
-        setIsLoading(false);
-        setOauthProvider(null);
-
-        const profileData = provider === 'google'
-          ? {
-              name: 'Google Verified Analyst',
-              email: 'analyst.google@truthlens.ai',
-              initials: 'GA',
-              provider: 'google',
-              avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
-              verified: true
-            }
-          : {
-              name: 'GitHub Verified Developer',
-              email: 'developer.github@truthlens.ai',
-              initials: 'GH',
-              provider: 'github',
-              avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces',
-              verified: true
-            };
-
-        onLogin(profileData);
-      }, 1000);
-    } catch (err) {
-      console.warn('Direct OAuth popup warning, applying local fallback:', err);
+    setTimeout(() => {
       setIsLoading(false);
       setOauthProvider(null);
-      onLogin({
-        name: `${provider === 'google' ? 'Google' : 'GitHub'} User`,
-        email: `user@${provider}.com`,
-        initials: provider === 'google' ? 'GU' : 'GH',
-        provider,
-        verified: true
-      });
-    }
+
+      const profileData = provider === 'google'
+        ? {
+            name: 'Google Verified Analyst',
+            email: 'dakshsalvi59@gmail.com',
+            initials: 'GA',
+            provider: 'google',
+            verified: true
+          }
+        : {
+            name: 'GitHub Verified Developer',
+            email: 'dakshsalvi59@gmail.com',
+            initials: 'GH',
+            provider: 'github',
+            verified: true
+          };
+
+      saveAccount(profileData);
+      setSuccessMsg(`Authenticated with ${provider === 'google' ? 'Google' : 'GitHub'}!`);
+      setTimeout(() => {
+        onLogin(profileData);
+      }, 500);
+    }, 700);
   };
 
   const handleContinueAsGuest = () => {
@@ -132,7 +242,7 @@ export default function AuthModal({ onLogin = () => {}, onClose = null }) {
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors"
+            className="absolute top-4 right-4 p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors cursor-pointer"
             title="Close"
           >
             <X size={18} />
@@ -153,14 +263,15 @@ export default function AuthModal({ onLogin = () => {}, onClose = null }) {
         </div>
 
         {/* Tab Switcher: Sign In vs Create Account */}
-        <div className="flex rounded-xl p-1 bg-white/10 dark:bg-white/5 border border-white/15 backdrop-blur-md mb-6">
+        <div className="flex rounded-xl p-1 bg-white/10 dark:bg-white/5 border border-white/15 backdrop-blur-md mb-5">
           <button
             type="button"
             onClick={() => {
               setIsRegister(false);
               setError('');
+              setSuccessMsg('');
             }}
-            className={`flex-1 py-2 text-xs font-bold font-mono-code tracking-wider rounded-lg transition-all ${
+            className={`flex-1 py-2 text-xs font-bold font-mono-code tracking-wider rounded-lg transition-all cursor-pointer ${
               !isRegister
                 ? 'bg-[#b91c1c] text-white shadow-md'
                 : 'text-slate-300 hover:text-white'
@@ -173,8 +284,9 @@ export default function AuthModal({ onLogin = () => {}, onClose = null }) {
             onClick={() => {
               setIsRegister(true);
               setError('');
+              setSuccessMsg('');
             }}
-            className={`flex-1 py-2 text-xs font-bold font-mono-code tracking-wider rounded-lg transition-all ${
+            className={`flex-1 py-2 text-xs font-bold font-mono-code tracking-wider rounded-lg transition-all cursor-pointer ${
               isRegister
                 ? 'bg-[#b91c1c] text-white shadow-md'
                 : 'text-slate-300 hover:text-white'
@@ -191,7 +303,7 @@ export default function AuthModal({ onLogin = () => {}, onClose = null }) {
             type="button"
             onClick={() => handleOAuthLogin('google')}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl font-semibold text-xs text-slate-900 bg-white hover:bg-slate-50 active:scale-[0.99] border border-white/30 backdrop-blur-md transition-all shadow-md cursor-pointer disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl font-semibold text-xs text-slate-900 bg-white hover:bg-slate-100 active:scale-[0.99] border border-white/30 backdrop-blur-md transition-all shadow-md cursor-pointer disabled:opacity-50"
           >
             {isLoading && oauthProvider === 'google' ? (
               <Loader2 size={16} className="animate-spin text-slate-800" />
@@ -227,16 +339,24 @@ export default function AuthModal({ onLogin = () => {}, onClose = null }) {
         {/* Divider */}
         <div className="relative flex items-center justify-center my-4">
           <div className="w-full border-t border-white/15" />
-          <span className="absolute px-3 text-[10px] font-mono-code uppercase text-slate-300 bg-slate-900/60 backdrop-blur-md rounded-full border border-white/10">
-            OR USE EMAIL
+          <span className="absolute px-3 text-[10px] font-mono-code uppercase text-slate-300 bg-slate-900/80 backdrop-blur-md rounded-full border border-white/10">
+            OR {isRegister ? 'REGISTER WITH EMAIL' : 'SIGN IN WITH EMAIL'}
           </span>
         </div>
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-4 p-2.5 rounded-lg bg-red-500/20 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
-            <AlertCircle size={14} className="shrink-0 text-red-400" />
+          <div className="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
+            <AlertCircle size={15} className="shrink-0 text-red-400" />
             <span>{error}</span>
+          </div>
+        )}
+
+        {/* Success Alert */}
+        {successMsg && (
+          <div className="mb-4 p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2">
+            <CheckCircle2 size={15} className="shrink-0 text-emerald-400" />
+            <span>{successMsg}</span>
           </div>
         )}
 
@@ -249,7 +369,7 @@ export default function AuthModal({ onLogin = () => {}, onClose = null }) {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Full Name / Handle"
+                placeholder="Full Name (e.g. Alex Morgan)"
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/10 dark:bg-white/5 border border-white/20 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-red-500 focus:bg-white/15 transition-all shadow-inner"
               />
             </div>
@@ -261,7 +381,7 @@ export default function AuthModal({ onLogin = () => {}, onClose = null }) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Analyst Email Address"
+              placeholder="Analyst Email (e.g. analyst@truthlens.ai)"
               className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/10 dark:bg-white/5 border border-white/20 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-red-500 focus:bg-white/15 transition-all shadow-inner"
             />
           </div>
@@ -272,13 +392,13 @@ export default function AuthModal({ onLogin = () => {}, onClose = null }) {
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password (min 6 characters)"
+              placeholder="Password (minimum 6 characters)"
               className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white/10 dark:bg-white/5 border border-white/20 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-red-500 focus:bg-white/15 transition-all shadow-inner"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-200 transition-colors"
+              className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
             >
               {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
@@ -300,12 +420,26 @@ export default function AuthModal({ onLogin = () => {}, onClose = null }) {
           </button>
         </form>
 
+        {/* Quick Demo Autofill Hint */}
+        {!isRegister && (
+          <div className="mt-3.5 text-center">
+            <button
+              type="button"
+              onClick={handleFillDemo}
+              className="inline-flex items-center gap-1.5 text-[11px] font-mono-code text-slate-300/80 hover:text-white px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
+            >
+              <KeyRound size={12} className="text-amber-400" />
+              <span>Use Demo Account: analyst@truthlens.ai</span>
+            </button>
+          </div>
+        )}
+
         {/* Guest Access Alternative */}
-        <div className="mt-5 text-center">
+        <div className="mt-4 text-center">
           <button
             type="button"
             onClick={handleContinueAsGuest}
-            className="text-xs font-mono-code text-slate-400 hover:text-white transition-colors underline decoration-dotted"
+            className="text-xs font-mono-code text-slate-400 hover:text-white transition-colors underline decoration-dotted cursor-pointer"
           >
             Continue as Guest Analyst →
           </button>

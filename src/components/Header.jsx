@@ -90,9 +90,16 @@ export default function Header({
             {showUserMenu && (
               <div className="absolute right-0 mt-2 w-48 rounded-xl bg-white dark:bg-[#1a1a19] border border-stone-200 dark:border-zinc-700 shadow-xl p-2 z-50 text-xs animate-fadeIn">
                 <div className="px-3 py-2 border-b border-stone-200 dark:border-zinc-800">
-                  <p className="font-bold text-stone-900 dark:text-zinc-100 truncate">
-                    {currentUser.name}
-                  </p>
+                  <div className="flex items-center justify-between gap-1">
+                    <p className="font-bold text-stone-900 dark:text-zinc-100 truncate">
+                      {currentUser.name}
+                    </p>
+                    {currentUser.provider && (
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-mono-code font-bold uppercase tracking-wider bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-zinc-400">
+                        {currentUser.provider}
+                      </span>
+                    )}
+                  </div>
                   {currentUser.email ? (
                     <p className="text-[11px] text-stone-500 dark:text-zinc-400 font-mono-code truncate mt-0.5">
                       {currentUser.email}
