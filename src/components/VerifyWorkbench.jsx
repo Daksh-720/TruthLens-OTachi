@@ -23,7 +23,7 @@ import VerdictBadge from './VerdictBadge';
 import { SAMPLE_CLAIMS } from '../data/mockData';
 import { analyzeWithGemini, getActiveApiKey, setActiveApiKey } from '../services/geminiService';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL.trim()) || 'https://truthlens-backend-ajgf.onrender.com';
 
 export default function VerifyWorkbench({ onSaveResult = () => {} }) {
   const [inputMode, setInputMode] = useState('text'); // 'text' | 'social' | 'media' | 'url'
