@@ -80,5 +80,4 @@ Return ONLY valid JSON in this exact schema:
       evidence: ['Cross-referenced against verified public information databases'],
       sources: ['Snopes Fact Database', 'Reuters Archive']
     });
-  }
 }

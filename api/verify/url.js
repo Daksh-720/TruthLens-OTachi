@@ -62,5 +62,4 @@ Return ONLY valid JSON in this exact schema:
       evidence: ['Domain cross-referenced with accredited news indexes'],
       sources: ['NewsGuard Registry', 'Media Bias / Fact Check']
     });
-  }
 }

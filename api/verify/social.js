@@ -62,5 +62,4 @@ Return ONLY valid JSON in this exact schema:
       evidence: ['Cross-referenced with verified social fact-checking desks'],
       sources: ['Snopes Social Media Verification', 'PolitiFact']
     });
-  }
 }
