@@ -6,7 +6,6 @@ import VerifyWorkbench from './components/VerifyWorkbench';
 import HistoryView from './components/HistoryView';
 import TrendsView from './components/TrendsView';
 import AuthModal from './components/AuthModal';
-import PixelTransition from './components/PixelTransition';
 import { INITIAL_HISTORY } from './data/mockData';
 
 export default function App() {
@@ -34,37 +33,7 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [historyItems, setHistoryItems] = useState(INITIAL_HISTORY);
 
-  // Digital pixel transition state
-  const [isPixelSwapping, setIsPixelSwapping] = useState(false);
-  const [targetDark, setTargetDark] = useState(false);
-
-  // Handle OAuth hash redirects (e.g. from Supabase / Google / GitHub OAuth)
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
-      try {
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
-        if (accessToken) {
-          const oauthUser = {
-            name: 'OAuth Verified Analyst',
-            email: 'verified.analyst@truthlens.ai',
-            initials: 'OA',
-            provider: 'oauth',
-            verified: true,
-            token: accessToken
-          };
-          setCurrentUser(oauthUser);
-          localStorage.setItem('TRUTHLENS_USER', JSON.stringify(oauthUser));
-          setShowAuthModal(false);
-          window.history.replaceState(null, '', window.location.pathname);
-        }
-      } catch (err) {
-        console.warn('OAuth hash parsing failed:', err);
-      }
-    }
-  }, []);
-
-  // Sync dark class on documentElement
+  // Sync dark class on documentElement for Tailwind
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
@@ -74,14 +43,7 @@ export default function App() {
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {
-    const nextMode = !isDarkMode;
-    setTargetDark(nextMode);
-    setIsPixelSwapping(true);
-
-    // Swap theme right at the peak of the pixel wave
-    setTimeout(() => {
-      setIsDarkMode(nextMode);
-    }, 360);
+    setIsDarkMode((prev) => !prev);
   };
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
@@ -112,12 +74,6 @@ export default function App() {
 
   return (
     <div className={`min-h-screen flex text-stone-900 dark:text-zinc-100 ${isDarkMode ? 'dark' : ''}`}>
-      {/* Crisp Digital Pixel Transition Overlay */}
-      <PixelTransition
-        active={isPixelSwapping}
-        toDark={targetDark}
-        onComplete={() => setIsPixelSwapping(false)}
-      />
 
       {/* Glassmorphic Login / Register Gate (Shown on refresh or when requested) */}
       {showAuthModal && (
