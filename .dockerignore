@@ -1,0 +1,11 @@
+node_modules/
+dist/
+target/
+misinformation-detector/target/
+*.log
+.git
+.gitignore
+.env
+.env.*
+.vscode/
+.idea/

@@ -6,6 +6,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HealthController {
 
+    @GetMapping("/")
+    public String root() {
+        return "Misinformation Detector Backend API is running";
+    }
+
     @GetMapping("/api/health")
     public String health() {
         return "Backend is running";

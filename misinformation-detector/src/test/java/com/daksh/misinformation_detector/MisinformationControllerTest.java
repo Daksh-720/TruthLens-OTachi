@@ -1,6 +1,7 @@
 package com.daksh.misinformation_detector;
 
 import com.daksh.misinformation_detector.integration.GeminiIntegration;
+import com.daksh.misinformation_detector.integration.GeminiMediaIntegration;
 import com.daksh.misinformation_detector.integration.GeminiResponse;
 import com.daksh.misinformation_detector.integration.GeminiTextIntegration;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,9 @@ class MisinformationControllerTest {
 
     @MockitoBean
     private GeminiIntegration geminiIntegration;
+
+    @MockitoBean
+    private GeminiMediaIntegration geminiMediaIntegration;
 
     @Test
     void healthCheck_Success() throws Exception {
@@ -74,18 +78,8 @@ class MisinformationControllerTest {
 
     @Test
     void analyzeUrl_Success() throws Exception {
-        GeminiResponse mockResponse = new GeminiResponse(
-                "GENUINE",
-                95,
-                "The article presents verified factual claims.",
-                List.of("SpaceX successfully launched Starship."),
-                List.of(),
-                List.of("Official launch broadcast."),
-                List.of("https://example.com/article")
-        );
-
-        Mockito.when(geminiTextIntegration.analyzeUrl(anyString()))
-                .thenReturn(mockResponse);
+        Mockito.when(geminiMediaIntegration.analyzeUrl(anyString()))
+                .thenReturn("{\"verdict\":\"GENUINE\",\"credibilityScore\":95}");
 
         mockMvc.perform(post("/api/misinformation/analyze-url")
                         .contentType(MediaType.APPLICATION_JSON)

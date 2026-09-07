@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: truthlens-backend
+    runtime: docker
+    dockerfilePath: ./misinformation-detector/Dockerfile
+    dockerContext: ./misinformation-detector
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: SUPABASE_DB_URL
+        sync: false
+      - key: SUPABASE_DB_USERNAME
+        sync: false
+      - key: SUPABASE_DB_PASSWORD
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
