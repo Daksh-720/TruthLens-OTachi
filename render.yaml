@@ -1,7 +1,7 @@
 services:
   - type: web
     name: truthlens-backend
-    runtime: docker
+    env: docker
     dockerfilePath: ./misinformation-detector/Dockerfile
     dockerContext: ./misinformation-detector
     plan: free
