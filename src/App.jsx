@@ -6,6 +6,7 @@ import VerifyWorkbench from './components/VerifyWorkbench';
 import HistoryView from './components/HistoryView';
 import TrendsView from './components/TrendsView';
 import AuthModal from './components/AuthModal';
+import PixelTransition from './components/PixelTransition';
 import { INITIAL_HISTORY } from './data/mockData';
 
 export default function App() {
@@ -33,6 +34,37 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [historyItems, setHistoryItems] = useState(INITIAL_HISTORY);
 
+  // High-performance digital pixel transition state
+  const [isPixelSwapping, setIsPixelSwapping] = useState(false);
+  const [targetDark, setTargetDark] = useState(false);
+  const [transitionOrigin, setTransitionOrigin] = useState({ x: null, y: null });
+
+  // Handle OAuth hash redirects (e.g. from Supabase / Google / GitHub OAuth)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
+      try {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        if (accessToken) {
+          const oauthUser = {
+            name: 'OAuth Verified Analyst',
+            email: 'verified.analyst@truthlens.ai',
+            initials: 'OA',
+            provider: 'oauth',
+            verified: true,
+            token: accessToken
+          };
+          setCurrentUser(oauthUser);
+          localStorage.setItem('TRUTHLENS_USER', JSON.stringify(oauthUser));
+          setShowAuthModal(false);
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      } catch (err) {
+        console.warn('OAuth hash parsing failed:', err);
+      }
+    }
+  }, []);
+
   // Sync dark class on documentElement for Tailwind
   useEffect(() => {
     if (isDarkMode) {
@@ -42,8 +74,22 @@ export default function App() {
     }
   }, [isDarkMode]);
 
-  const toggleDarkMode = () => {
-    setIsDarkMode((prev) => !prev);
+  const toggleDarkMode = (e) => {
+    if (isPixelSwapping) return;
+    const nextMode = !isDarkMode;
+    const clientX = e?.clientX ?? (typeof window !== 'undefined' ? window.innerWidth * 0.88 : null);
+    const clientY = e?.clientY ?? 36;
+    setTransitionOrigin({ x: clientX, y: clientY });
+    setTargetDark(nextMode);
+    setIsPixelSwapping(true);
+  };
+
+  const handleThemeSwap = () => {
+    setIsDarkMode(targetDark);
+  };
+
+  const handlePixelComplete = () => {
+    setIsPixelSwapping(false);
   };
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
@@ -74,6 +120,14 @@ export default function App() {
 
   return (
     <div className={`min-h-screen flex text-stone-900 dark:text-zinc-100 ${isDarkMode ? 'dark' : ''}`}>
+      {/* Crisp Digital Pixel Transition Overlay */}
+      <PixelTransition
+        active={isPixelSwapping}
+        toDark={targetDark}
+        origin={transitionOrigin}
+        onThemeSwap={handleThemeSwap}
+        onComplete={handlePixelComplete}
+      />
 
       {/* Glassmorphic Login / Register Gate (Shown on refresh or when requested) */}
       {showAuthModal && (
