@@ -9,5 +9,5 @@ Click the **Deploy to Render** button above or open this link directly:
 👉 [https://render.com/deploy?repo=https://github.com/Daksh-720/TruthLens-OTachi](https://render.com/deploy?repo=https://github.com/Daksh-720/TruthLens-OTachi)
 
 # Contributors
-Daksh Salvi :- Backend, Deployment
-Jash Shah :- Supabase (PostgreSQL Database)
+- Daksh Salvi :- Backend, Deployment
+- Jash Shah :- Supabase (PostgreSQL Database)
