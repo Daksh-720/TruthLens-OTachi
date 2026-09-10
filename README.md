@@ -11,5 +11,5 @@ Click the **Deploy to Render** button above or open this link directly:
 # Contributors
 - Daksh Salvi :- Backend, Deployment
 - Jash Shah :- Supabase (PostgreSQL Database)
-- Madhavan Pillay :- Frontend
-- Aarush Shah:- Presentation
+- Madhavan Pillay :- UI Design, frontend
+- Aarush Shah:- Presentation, Frontend Management
