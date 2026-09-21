@@ -133,10 +133,28 @@ public class MisinformationController {
 
     @PostMapping(
         value = "/analyze-text",
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<?> analyzeText(@RequestBody(required = false) Object requestBody) {
+        String content = extractContent(requestBody);
+        if (content == null || content.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Request body must contain non-empty 'content'."));
+        }
+        try {
+            GeminiResponse response = geminiTextIntegration.analyzeTextStructured(content);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "Analysis failed"));
+        }
+    }
+
+    @PostMapping(
+        value = "/analyze-text",
         consumes = MediaType.TEXT_PLAIN_VALUE,
         produces = MediaType.TEXT_PLAIN_VALUE
     )
-    public String analyzeText(@RequestBody String content) {
+    public String analyzeTextPlain(@RequestBody String content) {
         return geminiTextIntegration.analyzeText(content);
     }
 

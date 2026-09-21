@@ -7,6 +7,7 @@ import com.daksh.misinformation_detector.integration.GeminiTextIntegration;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -20,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(MisinformationController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class MisinformationControllerTest {
 
     @Autowired
@@ -78,8 +80,20 @@ class MisinformationControllerTest {
 
     @Test
     void analyzeUrl_Success() throws Exception {
+        String mockResponse = """
+                {
+                    "verdict": "GENUINE",
+                    "credibilityScore": 95,
+                    "explanation": "The article presents verified factual claims.",
+                    "actualFacts": ["SpaceX successfully launched Starship."],
+                    "falseClaims": [],
+                    "evidence": ["Official launch broadcast."],
+                    "sources": ["https://example.com/article"]
+                }
+                """;
+
         Mockito.when(geminiMediaIntegration.analyzeUrl(anyString()))
-                .thenReturn("{\"verdict\":\"GENUINE\",\"credibilityScore\":95}");
+                .thenReturn(mockResponse);
 
         mockMvc.perform(post("/api/misinformation/analyze-url")
                         .contentType(MediaType.APPLICATION_JSON)
