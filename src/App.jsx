@@ -7,7 +7,6 @@ import HistoryView from './components/HistoryView';
 import TrendsView from './components/TrendsView';
 import AuthModal from './components/AuthModal';
 import PixelTransition from './components/PixelTransition';
-import { INITIAL_HISTORY } from './data/mockData';
 
 export default function App() {
   // Check localStorage for persisted user or OAuth callback
@@ -32,7 +31,18 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('verify');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [historyItems, setHistoryItems] = useState(INITIAL_HISTORY);
+  // History initialized with zero default parameters; loads saved user verifications or begins empty
+  const [historyItems, setHistoryItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem('TRUTHLENS_HISTORY');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  // Trending claim text selected to inspect in workbench
+  const [selectedClaimForVerify, setSelectedClaimForVerify] = useState('');
 
   // High-performance digital pixel transition state
   const [isPixelSwapping, setIsPixelSwapping] = useState(false);
@@ -111,10 +121,25 @@ export default function App() {
   };
 
   const handleSaveResult = (newResult) => {
-    setHistoryItems((prev) => [newResult, ...prev]);
+    setHistoryItems((prev) => {
+      const exists = prev.some((item) => item.id === newResult.id || (item.claim && item.claim === newResult.claim));
+      const updated = exists ? prev : [newResult, ...prev];
+      try {
+        localStorage.setItem('TRUTHLENS_HISTORY', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  const handleClearHistory = () => {
+    setHistoryItems([]);
+    try {
+      localStorage.removeItem('TRUTHLENS_HISTORY');
+    } catch (e) {}
   };
 
   const handleSelectTrend = (topic) => {
+    setSelectedClaimForVerify(topic);
     setActiveTab('verify');
   };
 
@@ -168,10 +193,18 @@ export default function App() {
         {/* Content Area */}
         <main className="flex-1 p-6 md:p-8 overflow-y-auto">
           {activeTab === 'verify' && (
-            <VerifyWorkbench onSaveResult={handleSaveResult} />
+            <VerifyWorkbench
+              onSaveResult={handleSaveResult}
+              initialClaim={selectedClaimForVerify}
+              onClearInitialClaim={() => setSelectedClaimForVerify('')}
+            />
           )}
           {activeTab === 'history' && (
-            <HistoryView historyItems={historyItems} />
+            <HistoryView
+              historyItems={historyItems}
+              onClearHistory={handleClearHistory}
+              onGoToVerify={() => setActiveTab('verify')}
+            />
           )}
           {activeTab === 'trends' && (
             <TrendsView onSelectTrend={handleSelectTrend} />

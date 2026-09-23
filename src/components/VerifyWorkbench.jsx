@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileText,
   Share2,
@@ -25,13 +25,29 @@ import { analyzeWithGemini, verifyInstantaneously, getActiveApiKey, setActiveApi
 
 const API_BASE = (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL.trim()) || 'https://truthlens-backend-ajgf.onrender.com';
 
-export default function VerifyWorkbench({ onSaveResult = () => {} }) {
+export default function VerifyWorkbench({
+  onSaveResult = () => {},
+  initialClaim = '',
+  onClearInitialClaim = () => {}
+}) {
   const [inputMode, setInputMode] = useState('text'); // 'text' | 'social' | 'media' | 'url'
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState(initialClaim || '');
   const [selectedFile, setSelectedFile] = useState(null);
   const [depth, setDepth] = useState('Standard'); // 'Quick' | 'Standard' | 'Deep'
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
+
+  // Automatically populate claim text when a trending topic is selected
+  useEffect(() => {
+    if (initialClaim && initialClaim.trim()) {
+      setInputMode('text');
+      setInputText(initialClaim.trim());
+      if (onClearInitialClaim) {
+        onClearInitialClaim();
+      }
+    }
+  }, [initialClaim]);
+
 
   // Gemini API Key management modal
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
