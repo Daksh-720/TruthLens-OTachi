@@ -2,6 +2,9 @@
 node_modules/
 dist/
 *.local
+build.log
+HELP.md
+target/
 
 # ===== Backend (Spring Boot / Maven) =====
 misinformation-detector/target/
