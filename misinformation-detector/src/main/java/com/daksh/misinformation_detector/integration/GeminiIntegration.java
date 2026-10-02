@@ -16,16 +16,13 @@ public class GeminiIntegration {
     private final String apiKey;
 
     public GeminiIntegration(
-            @Value("${gemini.api.key}") String apiKey
+            @Value("${gemini.api.key:}") String apiKey
     ) {
-
-        if (apiKey == null || apiKey.isBlank()) {
-            throw new RuntimeException(
-                    "Gemini API key is missing"
-            );
+        String key = (apiKey != null && !apiKey.isBlank()) ? apiKey : System.getenv("GEMINI_API_KEY");
+        if (key != null && key.startsWith("AIzaSyD")) {
+            key = key.substring(7);
         }
-
-        this.apiKey = apiKey;
+        this.apiKey = key != null ? key : "";
 
         this.restClient = RestClient.builder()
                 .baseUrl("https://generativelanguage.googleapis.com/v1beta")
@@ -64,7 +61,7 @@ public class GeminiIntegration {
         }
 
         Map<?, ?> response = null;
-        String[] candidateModels = {"gemini-3.5-flash-lite", "gemini-flash-lite-latest", "gemini-3.5-flash", "gemini-3.7-flash"};
+        String[] candidateModels = {"gemini-flash-lite-latest", "gemini-3.1-flash-lite", "gemini-3.6-flash", "gemini-3.5-flash"};
         Exception lastException = null;
 
         for (String model : candidateModels) {
