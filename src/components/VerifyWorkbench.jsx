@@ -170,9 +170,6 @@ export default function VerifyWorkbench({
     }
   };
 
-  const activeKey = getActiveApiKey();
-  const maskedKey = activeKey ? `${activeKey.slice(0, 4)}••••••••${activeKey.slice(-4)}` : 'None';
-
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-16">
       {/* Input Mode Tabs & Status Pill */}
