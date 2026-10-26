@@ -34,10 +34,8 @@ Don't just read the news. Verify it.
 
 
 # 📊 Credibility Scoring
-- Every analysis can provide a score from 0 to 100, helping users understand the estimated credibility of the submitted content.
 ### Credibility Score Guide
-
-Every analysis can provide a score from 0 to 100, helping users understand the estimated credibility of the submitted content.
+- Every analysis can provide a score from 0 to 100, helping users understand the estimated credibility of the submitted content.
 
 | Score | Credibility Level |
 | :---- | :---------------- |
