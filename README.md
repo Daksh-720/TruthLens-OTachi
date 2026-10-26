@@ -32,6 +32,17 @@ Don't just read the news. Verify it.
 - Highlight misleading redirects, URL manipulation, and other available risk signals.
 - Assess the credibility of the website and its published content.
 
+
+# 📊 Credibility Scoring
+- Every analysis can provide a score from 0 to 100, helping users understand the estimated credibility of the submitted content.
+| Score        | Credibility Level              |
+| :----------: | :----------------------------- |
+| 🟢 80–100    | **High Credibility**           |
+| 🔵 60–79     | **Moderately Credible**        |
+| 🟡 40–59     | **Uncertain — Verify Further** |
+| 🟠 20–39     | **Low Credibility**            |
+| 🔴 0–19      | **Very Low Credibility**       |
+
 # Contributors
 - Daksh Salvi :- Backend, Deployment
 - Jash Shah :- Supabase (PostgreSQL Database)
