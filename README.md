@@ -35,13 +35,17 @@ Don't just read the news. Verify it.
 
 # 📊 Credibility Scoring
 - Every analysis can provide a score from 0 to 100, helping users understand the estimated credibility of the submitted content.
-| Score        | Credibility Level              |
-| :----------: | :----------------------------- |
-| 🟢 80–100    | **High Credibility**           |
-| 🔵 60–79     | **Moderately Credible**        |
-| 🟡 40–59     | **Uncertain — Verify Further** |
-| 🟠 20–39     | **Low Credibility**            |
-| 🔴 0–19      | **Very Low Credibility**       |
+### Credibility Score Guide
+
+Every analysis can provide a score from 0 to 100, helping users understand the estimated credibility of the submitted content.
+
+| Score | Credibility Level |
+| :---- | :---------------- |
+| ![80–100](https://img.shields.io/badge/80%E2%80%93100-16a34a?style=flat) | High Credibility |
+| ![60–79](https://img.shields.io/badge/60%E2%80%9379-6366f1?style=flat) | Moderately Credible |
+| ![40–59](https://img.shields.io/badge/40%E2%80%9359-f97316?style=flat) | Uncertain — Verify Further |
+| ![20–39](https://img.shields.io/badge/20%E2%80%9339-ef4444?style=flat) | Low Credibility |
+| ![0–19](https://img.shields.io/badge/0%E2%80%9319-b91c1c?style=flat) | Very Low Credibility |
 
 # Contributors
 - Daksh Salvi :- Backend, Deployment
