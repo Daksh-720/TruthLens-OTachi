@@ -13,6 +13,25 @@ Don't just read the news. Verify it.
 - TruthLens AI combines artificial intelligence, source analysis, and evidence-based verification to help users make informed decisions about the content they encounter online.
 - Users can submit text, news articles, URLs, or images and receive an analysis containing a credibility score, factual findings, supporting evidence, and potential misinformation indicators.
 
+# ✨ Key Features
+
+### 📰 AI-Powered Fake News Detection
+
+- Analyze news articles, headlines, and pasted text.
+
+- Identify potentially false, misleading, or unsupported claims.
+
+- Detect sensationalist language, inconsistencies, and suspicious patterns.
+
+- Generate an explanation for the final assessment.
+
+### 🌐 Suspicious URL Analysis
+
+- Analyze submitted URLs and website content.
+- Identify suspicious domain patterns and potential impersonation.
+- Highlight misleading redirects, URL manipulation, and other available risk signals.
+- Assess the credibility of the website and its published content.
+
 # Contributors
 - Daksh Salvi :- Backend, Deployment
 - Jash Shah :- Supabase (PostgreSQL Database)
