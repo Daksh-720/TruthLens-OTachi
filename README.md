@@ -45,7 +45,7 @@ Don't just read the news. Verify it.
 | ![20–39](https://img.shields.io/badge/20%E2%80%9339-ef4444?style=flat) | Low Credibility |
 | ![0–19](https://img.shields.io/badge/0%E2%80%9319-b91c1c?style=flat) | Very Low Credibility |
 
-# Contributors
+# Contributors/Collaborators
 - Daksh Salvi :- Backend, Deployment
 - Jash Shah :- Supabase (PostgreSQL Database)
 - Madhavan Pillay :- UI Design, frontend
